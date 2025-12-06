@@ -1,47 +1,29 @@
-# 🎬 Movie Recommendation System
+# 🎬 AI Movie Recommender System
 
-[![Python](https://img.shields.io/badge/Python-3.9%2B-blue.svg)](https://www.python.org/)
-[![Streamlit](https://img.shields.io/badge/Streamlit-1.35%2B-red.svg)](https://streamlit.io/)
-[![Scikit-learn](https://img.shields.io/badge/Scikit--learn-1.5%2B-orange.svg)](https://scikit-learn.org/stable/)
+A Content-Based Movie Recommendation System built with **Python** and **Streamlit**. 
+This application suggests movies based on similarity using the **TMDB 5000 Dataset**. It features a modern, Netflix-style user interface with a video background and real-time movie poster fetching.
 
-An intelligent movie recommendation system built with Python and Streamlit. This end-to-end data science project demonstrates content-based filtering, API integration, and a dynamic, user-friendly web interface.
-
----
-
-##  Overview
-
-This application provides personalized movie recommendations based on user preferences. It leverages a content-based filtering model built on the TMDb 5000 movie dataset. The user can either find movies similar to one they already love or discover new titles by filtering by genre. The entire application is wrapped in a sleek, interactive UI built with Streamlit.
-
----
-
-## ✨ Features
-
-- **Content-Based Similarity:** Recommends movies based on similarity of genres, keywords, cast, crew, and overview.
-- **Discover by Genre:** Allows users to explore random movies from a selected genre.
-- **Interactive UI:** A decent, dark-themed interface with animated elements and a "featured movie" layout.
-- **Dynamic Poster Fetching:** Integrates with the TMDb API to fetch and display movie posters in real-time.
-- **Modular Codebase:** The application is structured into separate modules for configuration, backend logic, and UI components for easy maintenance and scalability.
-
----
+## 🚀 Features
+* **Content-Based Filtering:** Uses Cosine Similarity and TF-IDF/CountVectorizer to find movies with similar plots, genres, and keywords.
+* **Search by Movie:** Select a movie you like, and the AI will recommend 10 similar titles.
+* **Discover by Genre:** Filter movies by specific genres (Action, Sci-Fi, Romance, etc.).
+* **Interactive UI:** Dynamic video background with a glass-morphism effect.
+* **Real-Time Data:** Fetches official movie posters and details using the TMDB API.
 
 ## 🛠️ Tech Stack
+* **Language:** Python 3.10+
+* **Frontend:** Streamlit
+* **Machine Learning:** Scikit-Learn (Cosine Similarity, TfidfVectorizer)
+* **Data Processing:** Pandas, NumPy
+* **API:** The Movie Database (TMDB) API
 
-- **Language:** Python
-- **Libraries:** Streamlit, Pandas, Scikit-learn, Requests
-- **Dataset:** TMDb 5000 Movie Dataset (from Kaggle)
-- **API:** The Movie Database (TMDb) API for fetching posters.
-
----
-
-## ⚙️ Setup and Local Installation
-
-To run this project on your local machine, follow these steps:
-
-**1. Clone the Repository:**
-Remember to replace `your-username` and `your-repo-name` with your actual GitHub details.
-
-```bash
-git clone [https://github.com/your-username/your-repo-name.git](https://github.com/your-username/your-repo-name.git)
-cd your-repo-name
-
-```
+## 📂 Project Structure
+```text
+├── app.py                   # Main Streamlit application entry point
+├── recommender.py           # ML Logic (Vectorization & Similarity)
+├── ui.py                    # UI Components (Backgrounds, CSS, Layouts)
+├── config.py                # Configuration & API Keys
+├── notebooks/               
+│   └── data_cleaning.ipynb  # Jupyter Notebook used to preprocess the raw data
+├── requirements.txt         # List of dependencies
+└── cleaned_movies_with_details.csv # Processed Dataset

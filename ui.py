@@ -1,54 +1,50 @@
 # ui.py
 
 import streamlit as st
+import pandas as pd
 import ast
 import base64
 from recommender import fetch_poster
 
 def set_video_background(video_file):
-    """
-    Sets a local video as the background, ensuring it covers the full screen.
-    """
+    """Sets a local video as the background."""
     try:
         with open(video_file, "rb") as f:
             video_bytes = f.read()
         
         video_b64 = base64.b64encode(video_bytes).decode()
         
-        safe_video_id = video_file.replace('.', '-')
-        
         st.markdown(
             f"""
             <style>
-            #bg-video-{safe_video_id} {{
-                position: fixed;
-                top: 50%;
-                left: 50%;
-                min-width: 100%;
-                min-height: 100%;
-                width: auto;
-                height: auto;
-                z-index: -2;
-                transform: translateX(-50%) translateY(-50%);
+            .stApp {{
+                background: transparent;
             }}
-            .stApp::before {{
-                content: "";
+            #my-video {{
                 position: fixed;
-                top: 0; left: 0; right: 0; bottom: 0;
-                background-color: rgba(0,0,0,0.7);
+                right: 0;
+                bottom: 0;
+                min-width: 100%; 
+                min-height: 100%;
                 z-index: -1;
             }}
-            .stApp > div {{
-                z-index: 1;
+            .content-overlay {{
+                background-color: rgba(0,0,0,0.7);
+                position: fixed;
+                top: 0; left: 0; width: 100%; height: 100%;
+                z-index: -1;
             }}
-            [data-testid="stAppViewContainer"] > .main {{
-                background-color: transparent;
+            /* Make text on cards readable */
+            .stCaption {{
+                color: #e0e0e0 !important;
+                font-size: 14px;
             }}
             </style>
             
-            <video autoplay loop muted id="bg-video-{safe_video_id}">
+            <video autoplay loop muted id="my-video">
                 <source src="data:video/mp4;base64,{video_b64}" type="video/mp4">
             </video>
+            <div class="content-overlay"></div>
             """,
             unsafe_allow_html=True
         )
@@ -56,45 +52,58 @@ def set_video_background(video_file):
         st.error(f"Video file '{video_file}' not found.")
 
 def display_recommendations_featured(recs_df):
-    """
-    Displays recommendations with one featured movie and a detailed grid for the rest.
-    """
+    """Displays recommendations with one featured movie and a detailed grid."""
     if recs_df.empty:
-        st.warning("No recommendations to display.")
+        st.warning("No recommendations found.")
         return
 
-    # --- FEATURED RECOMMENDATION ---
-    featured_movie = recs_df.iloc[0]
-    poster_url = fetch_poster(featured_movie['title'])
+    # --- FEATURED RECOMMENDATION (Top 1) ---
+    featured = recs_df.iloc[0]
+    poster_url = fetch_poster(featured['movie_id'])
 
-    st.markdown("### Top Recommendation")
+    st.markdown("### 🔥 Top Recommendation")
     col1, col2 = st.columns([1, 2])
+    
     with col1:
         st.image(poster_url, use_container_width=True)
     with col2:
-        st.markdown(f"**{featured_movie['title']}**")
+        st.markdown(f"## {featured['title']}")
+        
+        # Parse Genres safely
         try:
-            genres_list = ast.literal_eval(featured_movie['genres'])
-            st.markdown(f"*{', '.join(genres_list)}*")
-        except: pass
-        st.write(featured_movie['overview']) # Full overview for featured
+            if isinstance(featured['genres'], str):
+                genres_list = ast.literal_eval(featured['genres'])
+            else:
+                genres_list = featured['genres']
+            st.markdown(f"**Genres:** *{', '.join(genres_list)}*")
+        except:
+            pass
+            
+        # Full Overview for the top movie
+        st.write(featured['overview'])
 
-    # --- GRID OF OTHER RECOMMENDATIONS ---
+    # --- GRID OF OTHER RECOMMENDATIONS (Next 9) ---
     other_recs = recs_df.iloc[1:]
     if not other_recs.empty:
         st.markdown("---")
         st.subheader("More Suggestions")
         
-        num_columns = 3
+        num_columns = 4
         cols = st.columns(num_columns)
         
-        for i, row in enumerate(other_recs.iterrows()):
-            index, data = row
+        for i, (index, row) in enumerate(other_recs.iterrows()):
             with cols[i % num_columns]:
-                st.image(fetch_poster(data['title']), use_container_width=True)
-                st.markdown(f"**{data['title']}**")
+                st.image(fetch_poster(row['movie_id']), use_container_width=True)
+                st.markdown(f"**{row['title']}**")
                 
-                # --- NEW: ADDING DESCRIPTION TO GRID CARDS ---
-                # Truncate overview for the grid view to keep it neat
-                overview_text = (data['overview'][:100] + '...') if len(data['overview']) > 100 else data['overview']
-                st.write(overview_text)
+                # --- NEW CODE STARTS HERE ---
+                # Check if overview exists
+                if pd.notna(row['overview']):
+                    text = row['overview']
+                    # Truncate if it's too long (over 100 chars) to keep the grid neat
+                    if len(text) > 100:
+                        text = text[:100] + "..."
+                    
+                    # Display it in small gray text
+                    st.caption(text)
+                # --- NEW CODE ENDS HERE ---
